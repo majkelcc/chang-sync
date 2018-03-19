@@ -1,4 +1,3 @@
 chang_sync_server_exists() {
-  container=$(chang_sync_container)
-  ! test -z $(docker ps -aq --filter name=^/${container}$ 2>/dev/null)
+  ! test -z $(docker ps -aq --filter name=^/${CHANG_SYNC_CONTAINER}$ 2>/dev/null)
 }

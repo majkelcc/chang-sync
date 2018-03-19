@@ -1,7 +1,7 @@
 # if not exists
 chang_create_volume() {
   local name=$1
-  if ! docker volume ls -q | grep -qF "\b${name}\b"; then
+  if ! docker volume ls -q | grep -q "^${name}$"; then
     docker run --rm \
       --volume "$name":/volume \
       --entrypoint="" \

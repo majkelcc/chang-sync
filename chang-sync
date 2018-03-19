@@ -1,28 +1,37 @@
 #!/bin/bash
 
 set ${CHANG_SET:--eu}
+export ROOT=$(dirname $(readlink $BASH_SOURCE))
 
-for source in ${BASH_SOURCE%/*}/sources/*.sh; do
+for source in $ROOT/sources/*.sh; do
   f=$source
   f=${f##*/}
   f=${f%%.sh}
 
+  if ! type $f &>/dev/null; then
     source $source
+  fi
 done
 
-CHANG_SYNC_IMAGE="majkel/chang-sync"
-CHANG_SYNC_SERVER_PORT=5000
-CHANG_UID=${CHANG_UID:-1000}
-CHANG_GID=${CHANG_GID:-1000}
-CHANG_PWD="${CHANG_PWD:-$(pwd -P)}"
-APP_PATH="${CHANG_PWD}"
-CHANG_APP_NAME=${CHANG_PWD##*/}
-CHANG_MIN_IMAGE=${CHANG_MIN_IMAGE:-$CHANG_SYNC_IMAGE}
+export CHANG_PWD="${CHANG_PWD:-$(pwd -P)}"
+export CHANG_SYNC_IMAGE="majkel/chang-sync"
+export CHANG_SYNC_SERVER_PORT=5000
+export CHANG_UID=${CHANG_UID:-1000}
+export CHANG_GID=${CHANG_GID:-1000}
+export CHANG_MIN_IMAGE=${CHANG_MIN_IMAGE:-$CHANG_SYNC_IMAGE}
+
+export CHANG_APP_NAME=${CHANG_APP_NAME:-${CHANG_PWD##*/}}
+export CHANG_APP_HASH=${CHANG_APP_HASH:-$(chang_app_hash $CHANG_PWD)}
+export CHANG_APP_ID=${CHANG_APP_ID:-$(chang_app_id $CHANG_APP_NAME $CHANG_APP_HASH)}
+export CHANG_SYNC_VOLUME=${CHANG_SYNC_VOLUME:-$(chang_sync_volume $CHANG_APP_NAME $CHANG_APP_HASH)}
+export CHANG_SYNC_CONTAINER=${CHANG_SYNC_CONTAINER:-$(chang_sync_container $CHANG_APP_NAME $CHANG_APP_HASH)}
+
+export APP_PATH="${CHANG_PWD}"
 
 sync() {
   local verbose=${1:-false}
   trap chang_sync_stop EXIT
-  chang_sync_start_client $(${verbose} || echo -silent) -repeat watch -prefer ${APP_PATH} -killserver -perms -1
+  chang_sync_start_client $($verbose || echo -silent) -repeat watch -prefer $APP_PATH -killserver -perms -1
 }
 
 sync_daemon() {
@@ -32,7 +41,7 @@ sync_daemon() {
 case "${@:-}" in
   ""|start)
     chang_sync_start
-    echo $(chang_sync_volume)
+    echo $CHANG_SYNC_VOLUME
     ;;
   stop)
     chang_sync_stop

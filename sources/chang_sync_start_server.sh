@@ -2,8 +2,8 @@ chang_sync_start_server() {
   chang_sync_test_changignore
   chang_sync_stop_server
   chang_sync_create_volume
-  volume=$(chang_sync_volume)
-  container=$(chang_sync_container)
+  volume=$CHANG_SYNC_VOLUME
+  container=$CHANG_SYNC_CONTAINER
   docker run \
     -d \
     -v $volume:/chang \
