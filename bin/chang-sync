@@ -1,9 +1,13 @@
 #!/bin/bash
 
-set ${CHANG_SET:--eu}
-export ROOT=$(dirname $(readlink $BASH_SOURCE))
+export CHANG_DEBUG=${CHANG_DEBUG:-}
+export CHANG_SET=${CHANG_SET:--eu${CHANG_DEBUG:+x}}
 
-for source in $ROOT/sources/*.sh; do
+set ${CHANG_SET:--eu}
+
+export ROOT=$(dirname $BASH_SOURCE)
+
+for source in $ROOT/../sources/*.sh; do
   f=$source
   f=${f##*/}
   f=${f%%.sh}
